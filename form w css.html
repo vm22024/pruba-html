@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registro de Empleados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/empleado.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #6c757d;
+            --success-color: #1cbb8c;
+            --warning-color: #f7b84b;
+            --danger-color: #f06548;
+            --light-bg: #f5f8ff;
+        }
+
+        /* ===== Global ===== */
+        body {
+            background-color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        .btn {
+            border-radius: 8px;
+            padding: 10px 25px;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .btn-warning:hover {
+            background-color: #e9ab39;
+            border-color: #e9ab39;
+        }
+
+        .btn-success:hover {
+            background-color: #19a87d;
+            border-color: #19a87d;
+        }
+
+        /* ===== Form Cards ===== */
+        .card-form {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            height: 100%;
+        }
+
+        .card-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eaeef5;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .form-icon {
+            color: var(--primary-color);
+            margin-right: 8px;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 8px;
+            padding: 10px 15px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            box-shadow: 0 0 0 3px rgba(59, 125, 221, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        /* ===== Header ===== */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* ===== Tables ===== */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+        }
+
+        #tablaEmpleados {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        #tablaEmpleados thead th {
+            background-color: white;
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 12px 15px;
+            border-bottom: 2px solid #eaeef5;
+        }
+
+        #tablaEmpleados tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #eaeef5;
+        }
+
+        #tablaEmpleados tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        #tablaEmpleados tbody tr:hover {
+            background-color: #f8fbff;
+        }
+
+        /* ===== Badges ===== */
+        .badge {
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background-color: rgba(28, 187, 140, 0.15);
+            color: var(--success-color);
+        }
+
+        .badge-danger {
+            background-color: rgba(240, 101, 72, 0.15);
+            color: var(--danger-color);
+        }
+
+        .actions-column {
+            white-space: nowrap;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 768px) {
+            .table-container {
+                padding: 10px;
+            }
+
+            #tablaEmpleados thead th,
+            #tablaEmpleados tbody td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid px-3">
+        <div class="row form-table-container d-flex">
+            <!-- Formulario -->
+            <div class="col-md-4">
+                <div class="card-form h-100">
+                    <div class="card-title">Registro de Empleado</div>
+                    <form id="empleadoForm" method="post" action="crear_empleado.php">
+                        <input type="hidden" name="id_Empleado" id="id_Empleado">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label form-icon"><i class="bi bi-person-fill"></i>Nombre</label>
+                                <input type="text" name="nombre" class="form-control" placeholder="Ingresar Nombre"
+                                    required maxlength="25"
+                                    oninput="this.value = this.value.replace(/[^A-Za-zñÑáéíóúÁÉÍÓÚ\s]/g, '')">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label form-icon"><i
+                                        class="bi bi-person-vcard-fill"></i>Apellido</label>
+                                <input type="text" name="apellido" class="form-control" placeholder="Ingresar Apellido"
+                                    required maxlength="25"
+                                    oninput="this.value = this.value.replace(/[^A-Za-zñÑáéíóúÁÉÍÓÚ\s]/g, '')">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label form-icon"><i
+                                        class="bi bi-credit-card-2-front-fill"></i>DUI</label>
+                                <input type="text" name="DUI" class="form-control" placeholder="Ingrese número de DUI"
+                                    required maxlength="10" pattern="\d{8}-\d{1}" title="Formato válido: 12345678-9"
+                                    oninput="this.value = this.value.replace(/\D/g,'').slice(0,9); if(this.value.length>8){this.value=this.value.slice(0,8)+'-'+this.value.slice(8)}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label form-icon"><i class="bi bi-telephone-fill"></i>Teléfono</label>
+                                <input type="text" name="telefono" class="form-control"
+                                    placeholder="Ingresar número de teléfono" required maxlength="9"
+                                    pattern="\d{4}-\d{4}" title="Formato válido: 1234-5678"
+                                    oninput="this.value=this.value.replace(/\D/g,'').slice(0,8); if(this.value.length>4){this.value=this.value.slice(0,4)+'-'+this.value.slice(4)}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label form-icon"><i class="bi bi-house-fill"></i>Dirección</label>
+                                <input type="text" name="direccion" class="form-control"
+                                    placeholder="Ingresar Dirección" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label form-icon"><i class="bi bi-envelope-fill"></i>Correo</label>
+                                <input type="email" name="correo" class="form-control"
+                                    placeholder="Ingresar correo electrónico" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label form-icon"><i class="bi bi-key-fill"></i>Clave</label>
+                                <input type="password" name="clave" class="form-control"
+                                    placeholder="Ingresar clave de acceso" required minlength="8" required
+                                    maxlength="12">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label form-icon"><i class="bi bi-person-gear"></i>Usuario</label>
+                                <select class="form-select" name="id_Usuario" required>
+                                    <option value="">Seleccione</option>
+
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label form-icon"><i class="bi bi-toggle-on"></i>Estado</label>
+                                <select class="form-select" name="estado" required>
+                                    <option value="">Seleccione</option>
+                                    <option value="1">Alta</option>
+                                    <option value="0">Baja</option>
+                                </select>
+                            </div>
+                            <div class="col-12 text-center mt-4">
+                                <button id="btnCancelar" type="button"
+                                    class="btn btn-warning px-5 py-2">Cancelar</button>
+                                <button type="submit" class="btn btn-success px-5 py-2">Guardar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="col-md-8" id="tablaCol">
+                <div class="table-section">
+                    <div class="card-title" id="tablaTitle" style="cursor: pointer;">LISTA DE EMPLEADOS</div>
+                    <div class="table-responsive">
+                        <table id="tablaEmpleados" class="table table-bordered text-center align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Apellido</th>
+                                    <th>DUI</th>
+                                    <th>Teléfono</th>
+                                    <th>Dirección</th>
+                                    <th>Correo</th>
+                                    <th>Usuario</th>
+                                    <th>Estado</th>
+                                    <th>Accion</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>NOMBRE</td>
+                                    <td>APELLIDO</td>
+                                    <td>DUI</td>
+                                    <td>TELEFONO</td>
+                                    <td>DIRECCION</td>
+                                    <td>CORREO</td>
+                                    <td>USUARIO</td>
+                                    <td>
+                                        <span
+                                            class="badge <?php echo ($row['estado'] == 1 ? 'badge-success' : 'badge-danger'); ?>">
+
+                                        </span>
+                                    </td>
+                                    <td class="actions-column">
+                                        <button class="btn btn-sm btn-outline-warning me-1 p-1"
+                                            style="width: 40px; height: 40px;" onclick="">
+                                            <i class="bi bi-pencil" style="font-size: 1.2rem;"></i>
+                                        </button>
+                                    
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#tablaEmpleados').DataTable({
+                "language": { "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" },
+                "pageLength": 5,
+                "lengthMenu": [5, 10, 25, 50],
+            });
+        });
+    </script>
+</body>
+
+</html>
